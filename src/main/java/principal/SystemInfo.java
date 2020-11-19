@@ -1,4 +1,4 @@
-package com.g9.colorcanvas;
+package principal;
 
 public class SystemInfo {
 

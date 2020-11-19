@@ -1,4 +1,4 @@
-package com.g9.colorcanvas;
+package principal;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -7,9 +7,9 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 /**
- * JavaFX App
+ * JavaFX ColorCanvas
  */
-public class App extends Application {
+public class ColorCanvas extends Application {
 
     @Override
     public void start(Stage stage) {

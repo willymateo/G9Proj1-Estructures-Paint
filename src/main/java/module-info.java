@@ -1,4 +1,4 @@
-module com.g9.colorcanvas {
+module principal {
     requires javafx.controls;
-    exports com.g9.colorcanvas;
+    exports principal;
 }
