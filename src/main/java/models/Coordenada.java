@@ -30,5 +30,16 @@ public class Coordenada {
     public String toString() {
         return "(" +x +", " +y +")";
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Coordenada && obj != null) {
+            Coordenada cord2 = (Coordenada)obj;
+            if (x == cord2.x && y == cord2.y) {
+                return true;
+            }
+        }
+        return false;
+    }
     
 }

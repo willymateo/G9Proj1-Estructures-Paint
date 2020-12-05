@@ -14,11 +14,7 @@ import models.Matrix;
  */
 public class Tests {
     public static void main(String[] args) {
-        int[][] matrixBin = ReadMatrix.readMatrixBin("resources/files/cuadro.txt");
-        Matrix m = new Matrix(matrixBin);
+        Matrix m = new Matrix(ReadMatrix.readMatrixBin("resources/files/cuadro.txt"));
         System.out.println(m);
-        System.out.println(matrixBin.length);
-        System.out.println(matrixBin[0].length);
-
     }
 }

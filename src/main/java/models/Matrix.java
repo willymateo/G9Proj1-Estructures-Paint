@@ -8,6 +8,7 @@ package models;
 import data.ManejadorColor;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.PriorityQueue;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
@@ -18,6 +19,7 @@ import javafx.scene.paint.Color;
  */
 public class Matrix {
     private int[][] matrixNum;
+    private int[][] matrixBin;
     private int rows;
     private int columns;
     private PriorityQueue<Cluster> clusters;
@@ -27,10 +29,12 @@ public class Matrix {
         contenedor = new GridPane();
     }
     
-    public Matrix(int[][] matrixBin) {
+    public Matrix(int[][] matrixNum) {
         this();
-        this.matrixNum = matrixBin;
+        this.matrixNum = matrixNum;
         setRowColumns();
+        matrixBin = new int[rows][columns];
+        clusters = new PriorityQueue<>();
         getClustersQueue();
     }
     
@@ -51,21 +55,19 @@ public class Matrix {
     }
     
     private void getClustersQueue(){
-        int[][] matrixBin = new int[rows][columns];
-        
-        for (int row = 0; row < rows; row++) {
-            for (int column = 0; column < columns; column++) {
+        for (int row = 0; row < rows-1; row++) {
+            for (int column = 0; column < columns-1; column++) {
                 if (matrixBin[row][column] == 0) {
-                    Coordenada cord = new Coordenada(row, column);
-                    clusters.offer(getCluster(matrixBin, cord));
+                    Cluster clusterNew = getCluster(new Coordenada(column, row));
+                    clusters.offer(clusterNew);
                 }
             }
         }
     }
     
-    private Cluster getCluster(int[][] matrixBin, Coordenada coord){
+    private Cluster getCluster(Coordenada coord){
         ArrayDeque<Coordenada> pila = new ArrayDeque<>();
-        ArrayList<Pixel> pixeles = new ArrayList<>();
+        List<Pixel> pixeles = new ArrayList<>();
         int colorNum = matrixNum[coord.getY()][coord.getX()];
         int idPixelLeft = matrixNum[0].length-1;
         boolean continuar = true;
@@ -76,18 +78,17 @@ public class Matrix {
                 pila.push(coord);
                 matrixBin[coord.getY()][coord.getX()] = 1;
             }
-            
-            if(rightIsEqual(coord)){
-                coord = new Coordenada(coord.getX(), coord.getY()-1);
-            }else if(upIsEqual(coord)){
+            if(rightIsEqual(coord) && rightIsEmpty(coord)){
+                coord = new Coordenada(coord.getX()+1, coord.getY());
+            }else if(upIsEqual(coord) && upIsEmpty(coord)){
                 coord = new Coordenada(coord.getX(), coord.getY()+1);
-            }else if(leftIsEqual(coord)){
+            }else if(leftIsEqual(coord) && leftIsEmpty(coord)){
                 if (coord.getX()-1 < idPixelLeft) {
                     idPixelLeft = coord.getX()-1;
                 }
                 coord = new Coordenada(coord.getX()-1, coord.getY());
-            }else if(downIsEqual(coord)){
-                coord = new Coordenada(coord.getX()+1, coord.getY());
+            }else if(downIsEqual(coord) && downIsEmpty(coord)){
+                coord = new Coordenada(coord.getX(), coord.getY()+1);
             }else {
                 if(!pila.isEmpty()){
                     coord = pila.pop();
@@ -95,7 +96,8 @@ public class Matrix {
             }
         }
         Color color = ManejadorColor.buscarColor(colorNum);
-        return new Cluster(color, idPixelLeft, (Pixel[]) pixeles.toArray());
+        Cluster clusterNew = new Cluster(color, idPixelLeft, pixeles.toArray(new Pixel[pixeles.size()]));
+        return clusterNew;
     }
     
     private boolean leftIsEqual(Coordenada coord){
@@ -104,18 +106,37 @@ public class Matrix {
     }
     
     private boolean rightIsEqual(Coordenada coord){
-        if (coord.getX() == matrixNum[0].length-1 )return false;
+        if (coord.getX() == columns-1)return false;
         return matrixNum[coord.getY()][coord.getX()+1] == matrixNum[coord.getY()][coord.getX()];
     }
     
     private boolean upIsEqual(Coordenada coord){
-        if (coord.getY() == 0 )return false;
+        if (coord.getY() == 0)return false;
         return matrixNum[coord.getY()-1][coord.getX()] == matrixNum[coord.getY()][coord.getX()];
     }
     
     private boolean downIsEqual(Coordenada coord){
-        if (coord.getY() == matrixNum.length-1 )return false;
+        if (coord.getY() == rows-1)return false;
         return matrixNum[coord.getY()+1][coord.getX()] == matrixNum[coord.getY()][coord.getX()];
     }
     
+    private boolean leftIsEmpty(Coordenada coord){
+        if (coord.getX() == 0 )return false;
+        return matrixBin[coord.getY()][coord.getX()-1] <= 0;
+    }
+    
+    private boolean rightIsEmpty(Coordenada coord){
+        if (coord.getX() == columns-1)return false;
+        return matrixBin[coord.getY()][coord.getX()+1] <= 0;
+    }
+    
+    private boolean upIsEmpty(Coordenada coord){
+        if (coord.getY() == 0 )return false;
+        return matrixBin[coord.getY()-1][coord.getX()] <= 0;
+    }
+    
+    private boolean downIsEmpty(Coordenada coord){
+        if (coord.getY() == rows-1)return false;
+        return matrixBin[coord.getY()+1][coord.getX()] <= 0;
+    }
 }
