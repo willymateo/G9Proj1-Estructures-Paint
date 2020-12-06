@@ -44,31 +44,4 @@ public class ReadMatrix {
             return matrixNum;
         }
     }
-    
-    /*
-    public static Matrix readMatrix(String FilePath) {
-        Matrix matrix = new Matrix();
-        ArrayList<Cluster> clusters = new  ArrayList<>();
-        
-        try (BufferedReader br = new BufferedReader(new FileReader(FilePath))) {
-            int rows = Integer.parseInt(br.readLine());
-            int columns = Integer.parseInt(br.readLine());
-            
-            String linea;
-            int x = 0;
-            while ((linea = br.readLine()) != null) {                
-                String partes[] = linea.strip().split(",");
-                for (int y = 0; y < partes.length; y++) {
-                    Coordenada coord = new Coordenada(x, y);
-                    Color color = ManejadorColor.buscarColor(Integer.parseInt(partes[y]));
-                    Pixel pixel = new Pixel(color, coord);
-                }
-                x++;
-            }
-        } catch (Exception e) {
-        }
-        return matrix;
-    }
-    */
-    
 }

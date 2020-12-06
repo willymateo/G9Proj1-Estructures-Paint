@@ -23,10 +23,11 @@ public class Matrix {
     private int rows;
     private int columns;
     private PriorityQueue<Cluster> clusters;
-    private GridPane contenedor;
+    private GridPane gridP_Contenedor;
 
     public Matrix() {
-        contenedor = new GridPane();
+        gridP_Contenedor = new GridPane();
+        gridP_Contenedor.setGridLinesVisible(true);
     }
     
     public Matrix(int[][] matrixNum) {
@@ -36,30 +37,27 @@ public class Matrix {
         matrixBin = new int[rows][columns];
         clusters = new PriorityQueue<>();
         getClustersQueue();
+        System.out.println("cantidad de elementos en pila: " +clusters.size());
+    }
+    
+    public GridPane getGridP_Contenedor() {
+        return gridP_Contenedor;
+    }
+
+    public PriorityQueue<Cluster> getClusters() {
+        return clusters;
     }
     
     private void setRowColumns(){
         rows = matrixNum.length;
         columns = matrixNum[0].length;
-    }
-    
-    @Override
-    public String toString() {
-        StringBuilder texto = new StringBuilder();
-        for (int[] fila : matrixNum){
-            for (int j = 0; j<fila.length; j++)
-                texto.append(fila[j]).append(" ");
-            texto.append(System.getProperty("line.separator"));
-        }
-        return texto.toString();
-    }
+    }   
     
     private void getClustersQueue(){
-        for (int row = 0; row < rows-1; row++) {
-            for (int column = 0; column < columns-1; column++) {
+        for (int row = 0; row < rows; row++) {
+            for (int column = 0; column < columns; column++) {
                 if (matrixBin[row][column] == 0) {
-                    Cluster clusterNew = getCluster(new Coordenada(column, row));
-                    clusters.offer(clusterNew);
+                    clusters.offer(getCluster(new Coordenada(column, row)));
                 }
             }
         }
@@ -68,14 +66,16 @@ public class Matrix {
     private Cluster getCluster(Coordenada coord){
         ArrayDeque<Coordenada> pila = new ArrayDeque<>();
         List<Pixel> pixeles = new ArrayList<>();
-        int colorNum = matrixNum[coord.getY()][coord.getX()];
+        Color color = ManejadorColor.buscarColor(matrixNum[coord.getY()][coord.getX()]);
         int idPixelLeft = matrixNum[0].length-1;
         boolean continuar = true;
         
         while (continuar) {            
             if (matrixBin[coord.getY()][coord.getX()] == 0) {
-                pixeles.add(new Pixel(coord));
+                Pixel pixel = new Pixel(coord, color);
+                pixeles.add(pixel);
                 pila.push(coord);
+                putInGrid(pixel);
                 matrixBin[coord.getY()][coord.getX()] = 1;
             }
             if(rightIsEqual(coord) && rightIsEmpty(coord)){
@@ -95,9 +95,13 @@ public class Matrix {
                 }else{continuar = false;} 
             }
         }
-        Color color = ManejadorColor.buscarColor(colorNum);
-        Cluster clusterNew = new Cluster(color, idPixelLeft, pixeles.toArray(new Pixel[pixeles.size()]));
-        return clusterNew;
+        return new Cluster(color, idPixelLeft, pixeles.toArray(new Pixel[pixeles.size()]));
+    }
+    
+    private void putInGrid(Pixel pixel){
+        int idRow = pixel.getCoordenada().getY();
+        int idColumn = pixel.getCoordenada().getX();
+        gridP_Contenedor.add(pixel.getShape(), idColumn, idRow);
     }
     
     private boolean leftIsEqual(Coordenada coord){
@@ -138,5 +142,16 @@ public class Matrix {
     private boolean downIsEmpty(Coordenada coord){
         if (coord.getY() == rows-1)return false;
         return matrixBin[coord.getY()+1][coord.getX()] <= 0;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder texto = new StringBuilder();
+        for (int[] fila : matrixNum){
+            for (int j = 0; j<fila.length; j++)
+                texto.append(fila[j]).append(" ");
+            texto.append(System.getProperty("line.separator"));
+        }
+        return texto.toString();
     }
 }

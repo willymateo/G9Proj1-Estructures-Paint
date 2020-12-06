@@ -5,7 +5,9 @@
  */
 package data;
 
-import models.Coordenada;
+import java.util.PriorityQueue;
+import models.Cluster;
+import models.Matrix;
 
 /**
  *
@@ -13,24 +15,7 @@ import models.Coordenada;
  */
 public class ManejadorMatrix {
     
-    public static boolean leftIsEmpty(int[][] matrix, Coordenada coord){
-        if (coord.getX() == 0 )return false;
-        return matrix[coord.getY()][coord.getX()-1] <= 0;
+    public static void llenarMatrix(Matrix matrix){
+        PriorityQueue<Cluster> queueCopy = matrix.getClusters();
     }
-    
-    public static boolean rightIsEmpty(int[][] matrix, Coordenada coord){
-        if (coord.getX() == matrix[0].length-1 )return false;
-        return matrix[coord.getY()][coord.getX()+1] <= 0;
-    }
-    
-    public static boolean upIsEmpty(int[][] matrix, Coordenada coord){
-        if (coord.getY() == 0 )return false;
-        return matrix[coord.getY()-1][coord.getX()] <= 0;
-    }
-    
-    public static boolean downIsEmpty(int[][] matrix, Coordenada coord){
-        if (coord.getY() == matrix.length-1 )return false;
-        return matrix[coord.getY()+1][coord.getX()] <= 0;
-    }
-    
 }

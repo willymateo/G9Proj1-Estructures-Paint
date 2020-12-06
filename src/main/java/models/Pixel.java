@@ -5,6 +5,7 @@
  */
 package models;
 
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
 /**
@@ -15,9 +16,18 @@ public class Pixel {
     private final Rectangle shape;
     private final Coordenada coordenada;
 
-    public Pixel(Coordenada coordenada) {
+    public Pixel(Coordenada coordenada, Color color) {
         this.coordenada = coordenada;
-        this.shape = new Rectangle(5, 5);
+        shape = new Rectangle(30, 30, color);
+        shape.setStroke(color.BLACK);
+    }
+
+    public Coordenada getCoordenada() {
+        return coordenada;
+    }
+
+    public Rectangle getShape() {
+        return shape;
     }
 
     @Override

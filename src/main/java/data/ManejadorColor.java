@@ -21,7 +21,7 @@ public class ManejadorColor {
             case 2:
                 return Color.LAWNGREEN;
             case 3:
-                return Color.DODGERBLUE;
+                return Color.BLUE;
             case 4:
                 return Color.ORANGE;
             default:
