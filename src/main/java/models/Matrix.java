@@ -37,7 +37,6 @@ public class Matrix {
         matrixBin = new int[rows][columns];
         clusters = new PriorityQueue<>();
         getClustersQueue();
-        System.out.println("cantidad de elementos en pila: " +clusters.size());
     }
     
     public GridPane getGridP_Contenedor() {
@@ -46,6 +45,62 @@ public class Matrix {
 
     public PriorityQueue<Cluster> getClusters() {
         return clusters;
+    }
+
+    public int[][] getMatrixBin() {
+        return matrixBin;
+    }
+
+    public int[][] getMatrixNum() {
+        return matrixNum;
+    }
+    
+    public void resetMatrixBin(){
+        matrixBin = new int[rows][columns];
+    }
+    
+    public boolean leftIsEqual(Coordenada coord){
+        if (coord.getX() == 0 )return false;
+        return matrixNum[coord.getY()][coord.getX()-1] == matrixNum[coord.getY()][coord.getX()];
+    }
+    
+    public boolean rightIsEqual(Coordenada coord){
+        if (coord.getX() == columns-1)return false;
+        return matrixNum[coord.getY()][coord.getX()+1] == matrixNum[coord.getY()][coord.getX()];
+    }
+    
+    public boolean upIsEqual(Coordenada coord){
+        if (coord.getY() == 0)return false;
+        return matrixNum[coord.getY()-1][coord.getX()] == matrixNum[coord.getY()][coord.getX()];
+    }
+    
+    public boolean downIsEqual(Coordenada coord){
+        if (coord.getY() == rows-1)return false;
+        return matrixNum[coord.getY()+1][coord.getX()] == matrixNum[coord.getY()][coord.getX()];
+    }
+    
+    public boolean leftIsEmpty(Coordenada coord){
+        if (coord.getX() == 0 )return false;
+        return matrixBin[coord.getY()][coord.getX()-1] <= 0;
+    }
+    
+    public boolean rightIsEmpty(Coordenada coord){
+        if (coord.getX() == columns-1)return false;
+        return matrixBin[coord.getY()][coord.getX()+1] <= 0;
+    }
+    
+    public boolean upIsEmpty(Coordenada coord){
+        if (coord.getY() == 0 )return false;
+        return matrixBin[coord.getY()-1][coord.getX()] <= 0;
+    }
+    
+    public boolean downIsEmpty(Coordenada coord){
+        if (coord.getY() == rows-1)return false;
+        return matrixBin[coord.getY()+1][coord.getX()] <= 0;
+    }
+
+    public boolean isEmpty(Coordenada coord){
+        return matrixBin[coord.getY()][coord.getX()] == 0;
     }
     
     private void setRowColumns(){
@@ -104,46 +159,6 @@ public class Matrix {
         gridP_Contenedor.add(pixel.getShape(), idColumn, idRow);
     }
     
-    private boolean leftIsEqual(Coordenada coord){
-        if (coord.getX() == 0 )return false;
-        return matrixNum[coord.getY()][coord.getX()-1] == matrixNum[coord.getY()][coord.getX()];
-    }
-    
-    private boolean rightIsEqual(Coordenada coord){
-        if (coord.getX() == columns-1)return false;
-        return matrixNum[coord.getY()][coord.getX()+1] == matrixNum[coord.getY()][coord.getX()];
-    }
-    
-    private boolean upIsEqual(Coordenada coord){
-        if (coord.getY() == 0)return false;
-        return matrixNum[coord.getY()-1][coord.getX()] == matrixNum[coord.getY()][coord.getX()];
-    }
-    
-    private boolean downIsEqual(Coordenada coord){
-        if (coord.getY() == rows-1)return false;
-        return matrixNum[coord.getY()+1][coord.getX()] == matrixNum[coord.getY()][coord.getX()];
-    }
-    
-    private boolean leftIsEmpty(Coordenada coord){
-        if (coord.getX() == 0 )return false;
-        return matrixBin[coord.getY()][coord.getX()-1] <= 0;
-    }
-    
-    private boolean rightIsEmpty(Coordenada coord){
-        if (coord.getX() == columns-1)return false;
-        return matrixBin[coord.getY()][coord.getX()+1] <= 0;
-    }
-    
-    private boolean upIsEmpty(Coordenada coord){
-        if (coord.getY() == 0 )return false;
-        return matrixBin[coord.getY()-1][coord.getX()] <= 0;
-    }
-    
-    private boolean downIsEmpty(Coordenada coord){
-        if (coord.getY() == rows-1)return false;
-        return matrixBin[coord.getY()+1][coord.getX()] <= 0;
-    }
-
     @Override
     public String toString() {
         StringBuilder texto = new StringBuilder();

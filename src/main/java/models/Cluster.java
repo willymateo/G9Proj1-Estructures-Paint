@@ -23,7 +23,11 @@ public class Cluster implements Comparable<Cluster>{
         this.idPixelLeft = idPixelLeft;
         this.pixeles = pixeles;
     }
-    
+
+    public Pixel[] getPixeles() {
+        return pixeles;
+    }
+
     @Override
     public int compareTo(Cluster cl2) {
         int cSize = Integer.compare(this.size, cl2.size)*-1;
