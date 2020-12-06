@@ -5,9 +5,8 @@
  */
 package views;
 
+import data.PaintThread;
 import data.ReadMatrix;
-import java.util.ArrayDeque;
-import java.util.PriorityQueue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -18,8 +17,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import models.Cluster;
-import models.Coordenada;
 import models.Matrix;
 
 /**
@@ -27,16 +24,14 @@ import models.Matrix;
  * @author Willy Mateo
  */
 public class MainView {
-    private BorderPane root;
+    private final BorderPane root;
     private Matrix matrix;
     private long tiempo;
-    private Color pincel;
-    private boolean bandera;
+    private final Color pincel;
 
     public MainView() {
         root = new BorderPane();
-        tiempo = 2000;
-        bandera = false;
+        tiempo = 1000;
         pincel = Color.LIGHTCORAL;
         loadFiles();
         createTop();
@@ -80,54 +75,16 @@ public class MainView {
         hB_Bottom.setAlignment(Pos.CENTER);
         root.setBottom(hB_Bottom);
         
-        btn_Step.setOnMouseClicked((e)->{
-            bandera = true;
+        btn_PlayPause.setOnMouseClicked((e)->{
+            System.out.println("Clic play");
+            btn_Step.setDisable(true);
+            Thread paintThread = new Thread(new PaintThread(matrix, pincel, tiempo));
+            paintThread.start();
         });
     }
     
     public BorderPane getRoot() {
         return root;
-    }
-    
-    private class painThread implements Runnable{
-        @Override
-        public void run() {
-            PriorityQueue<Cluster> queueCopy = new PriorityQueue<>();
-            for (Cluster cluster : matrix.getClusters()) {
-                queueCopy.offer(cluster);
-            }
-            
-            matrix.resetMatrixBin();
-            while (!queueCopy.isEmpty()) {                
-                Cluster clusterNow = queueCopy.poll();
-                Coordenada coordI = clusterNow.getPixeles()[0].getCoordenada();
-                
-            }
-        }
-        
-        private void paint(Coordenada coord){
-            ArrayDeque<Coordenada> pilaCoords = new ArrayDeque();
-            boolean fin = false;
-            while(!fin){
-                if(matrix.isEmpty(coord)){
-                    //matriz[p.x][p.y]=color;
-                    pilaCoords.push(coord);
-                }
-                if(matrix.rightIsEmpty(coord) && matrix.rightIsEqual(coord)){
-                    coord = new Coordenada(coord.getX()+1, coord.getY());
-                }else if(matrix.upIsEmpty(coord) && matrix.upIsEqual(coord)){
-                    coord = new Coordenada(coord.getX(), coord.getY()-1);
-                }else if(matrix.leftIsEmpty(coord) && matrix.leftIsEqual(coord)){
-                    coord = new Coordenada(coord.getX()-1, coord.getY());
-                }else if(matrix.downIsEmpty(coord) && matrix.downIsEqual(coord)){
-                    coord = new Coordenada(coord.getX(), coord.getY()+1);
-                }else {
-                    if(!pilaCoords.isEmpty()){
-                        coord = pilaCoords.pop();
-                    }else{fin = true;}
-                }
-            }
-        }
     }
     
 }

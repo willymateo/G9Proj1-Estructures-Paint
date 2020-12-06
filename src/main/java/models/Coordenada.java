@@ -41,5 +41,10 @@ public class Coordenada {
         }
         return false;
     }
+
+    @Override
+    public int hashCode() {
+        return this.toString().hashCode();
+    }
     
 }

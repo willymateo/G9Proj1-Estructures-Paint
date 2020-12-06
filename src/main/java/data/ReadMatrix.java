@@ -8,12 +8,6 @@ package data;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import javafx.scene.paint.Color;
-import models.Cluster;
-import models.Coordenada;
-import models.Matrix;
-import models.Pixel;
 
 /**
  *

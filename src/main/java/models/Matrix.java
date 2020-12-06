@@ -5,13 +5,13 @@
  */
 package models;
 
+import data.ClusterComparator;
 import data.ManejadorColor;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.PriorityQueue;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 
 /**
  *
@@ -35,8 +35,9 @@ public class Matrix {
         this.matrixNum = matrixNum;
         setRowColumns();
         matrixBin = new int[rows][columns];
-        clusters = new PriorityQueue<>();
+        clusters = new PriorityQueue<>(new ClusterComparator());
         getClustersQueue();
+        resetMatrixBin();
     }
     
     public GridPane getGridP_Contenedor() {
@@ -120,17 +121,17 @@ public class Matrix {
     
     private Cluster getCluster(Coordenada coord){
         ArrayDeque<Coordenada> pila = new ArrayDeque<>();
-        List<Pixel> pixeles = new ArrayList<>();
         Color color = ManejadorColor.buscarColor(matrixNum[coord.getY()][coord.getX()]);
-        int idPixelLeft = matrixNum[0].length-1;
+        Coordenada pixelLeft = new Coordenada(columns-1,0);
+        Cluster clusterNew = new Cluster(color, pixelLeft);
+        
         boolean continuar = true;
         
         while (continuar) {            
             if (matrixBin[coord.getY()][coord.getX()] == 0) {
-                Pixel pixel = new Pixel(coord, color);
-                pixeles.add(pixel);
+                clusterNew.addPixel(coord);
                 pila.push(coord);
-                putInGrid(pixel);
+                putInGrid(coord, clusterNew.getPixel(coord));
                 matrixBin[coord.getY()][coord.getX()] = 1;
             }
             if(rightIsEqual(coord) && rightIsEmpty(coord)){
@@ -138,9 +139,6 @@ public class Matrix {
             }else if(upIsEqual(coord) && upIsEmpty(coord)){
                 coord = new Coordenada(coord.getX(), coord.getY()+1);
             }else if(leftIsEqual(coord) && leftIsEmpty(coord)){
-                if (coord.getX()-1 < idPixelLeft) {
-                    idPixelLeft = coord.getX()-1;
-                }
                 coord = new Coordenada(coord.getX()-1, coord.getY());
             }else if(downIsEqual(coord) && downIsEmpty(coord)){
                 coord = new Coordenada(coord.getX(), coord.getY()+1);
@@ -150,13 +148,11 @@ public class Matrix {
                 }else{continuar = false;} 
             }
         }
-        return new Cluster(color, idPixelLeft, pixeles.toArray(new Pixel[pixeles.size()]));
+        return clusterNew;
     }
     
-    private void putInGrid(Pixel pixel){
-        int idRow = pixel.getCoordenada().getY();
-        int idColumn = pixel.getCoordenada().getX();
-        gridP_Contenedor.add(pixel.getShape(), idColumn, idRow);
+    private void putInGrid(Coordenada coordenada, Rectangle shape){
+        gridP_Contenedor.add(shape, coordenada.getX(), coordenada.getY());
     }
     
     @Override
