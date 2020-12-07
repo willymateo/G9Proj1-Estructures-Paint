@@ -8,12 +8,14 @@ package data;
 import java.util.ArrayDeque;
 import java.util.PriorityQueue;
 import javafx.application.Platform;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import models.Cluster;
 import models.Coordenada;
 import models.Matrix;
+import views.MainView;
 
 /**
  *
@@ -21,17 +23,17 @@ import models.Matrix;
  */
 public class PaintThread implements Runnable{
     private final Matrix matrix;
-    private static boolean continuar;
-    private int milis;
+    private static int milis;
     private final Color pincel;
     private final VBox vB_coordsQueue;
-    private boolean suspend;
-    private boolean pause;
+    public static boolean suspend;
+    private Button btn_des;
     
     public PaintThread(Matrix matrix, VBox vB_coordsQueue, Color pincel) {
         this.matrix = matrix;
         this.pincel = pincel;
-        this.vB_coordsQueue = vB_coordsQueue;        
+        this.vB_coordsQueue = vB_coordsQueue;
+        suspend = false;
         milis = 1000;
     }
     
@@ -55,13 +57,18 @@ public class PaintThread implements Runnable{
             Cluster clusterNow = queueCopy.poll();
             paint(clusterNow, clusterNow.getCoordLeft());
         }
+        suspend = true;
+        matrix.originColor();
     }
     
     private void paint(Cluster cluster, Coordenada coord){
         ArrayDeque<Coordenada> pilaCoords = new ArrayDeque();
-        continuar = true;
-        while(continuar){
+        boolean continuar = true;
+        while(!suspend && continuar){
             try {
+                while (isPaused()) {                    
+                    Thread.sleep(1000);
+                }
                 if(matrix.isEmpty(coord)){
                     cluster.getPixel(coord).setFill(pincel);
                     pilaCoords.push(coord);
@@ -96,35 +103,36 @@ public class PaintThread implements Runnable{
                 if (suspend) {
                     break;
                 }
-                if (pause) {
-                    wait();
+                while (MainView.llaveStep) {                        
+                    Thread.sleep(1000);
                 }
+                MainView.llaveStep = true;
             } catch (InterruptedException iE) {
                 System.out.print("Se finalizó el hilo de pintar por un error inesperado.");
-                continuar = false;
+                suspend = true;
             }
         }
     }
     
-    public void killThread(){
-        suspend = false;
+    public static void killThread(){
+        suspend = true;
+        MainView.llavePause = false;
     }
     
     public void pauseThread(){
-        pause = true;
+        MainView.llavePause = true;
     }
     
-    public void reanueThread(){
-        pause = false;
-        notify();
+    public synchronized void reanueThread(){
+        MainView.llavePause = false;
     }
     
     public boolean isPaused(){
-        return pause;
+        return MainView.llavePause;
     }
 
-    public void setMilis(int milis) {
-        this.milis = milis;
+    public static void setMilis(int milis) {
+        PaintThread.milis = milis;
     }
     
 }

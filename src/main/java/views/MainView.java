@@ -30,18 +30,24 @@ public class MainView {
     private int tiempo;
     private final Color pincel;
     private VBox vB_coordsQueue;
-    private Thread paintThread;
+    private PaintThread paintThread;
     private Slider velocidad;
+    private boolean primeraVez;
+    public static boolean llavePause;
+    public static boolean llaveStep;
 
     public MainView() {
         root = new BorderPane();
         vB_coordsQueue = new VBox();
         tiempo = 1000;
         pincel = Color.ORANGE;
+        llavePause = false;
+        llaveStep = false;
         loadFiles();
         createTop();
         createCenter();
         createBottom();
+        primeraVez = true;
     }
     
     private void loadFiles(){
@@ -63,6 +69,9 @@ public class MainView {
     }
     
     private void createBottom() {
+        paintThread = new PaintThread(matrix, vB_coordsQueue, pincel, tiempo);
+        Thread th = new Thread(paintThread);
+        
         velocidad = new Slider(1, 5, 1);
         velocidad.setShowTickLabels(true);
         velocidad.setShowTickMarks(true);
@@ -71,8 +80,8 @@ public class MainView {
         btn_PlayPause.setGraphicTextGap(3);
         btn_Step.setGraphicTextGap(3);
         try {
+            btn_Step.setGraphic(new ImageView(new Image("resources/icons/step.jpg")));
             btn_PlayPause.setGraphic(new ImageView(new Image("resources/icons/play.png")));
-            btn_Step.setGraphic(new ImageView(new Image("resources/icons/paso.png")));
         } catch (IllegalArgumentException iaE) {
             System.out.println("No se pudieron cargar las imagenes");
         }
@@ -83,21 +92,38 @@ public class MainView {
         
         btn_PlayPause.setOnMouseClicked((e)->{
             btn_Step.setDisable(true);
-            if (btn_PlayPause.getText().equals("Play")) {
-                btn_PlayPause.setText("Pause");
-            }else {
-                btn_PlayPause.setText("Play");
+            if (primeraVez) {
+                th.start();
+                primeraVez = false;
+            }else if (PaintThread.suspend){
+                paintThread = new PaintThread(matrix, vB_coordsQueue, pincel, tiempo);
+                new Thread(paintThread).start();
             }
             
-            PaintThread pt = new PaintThread(matrix, vB_coordsQueue, pincel, tiempo);
-            paintThread = new Thread(pt);
-            vB_coordsQueue = pt.getvB_coordsQueue();
-            paintThread.start();
+            if (llavePause) {
+                btn_PlayPause.setText("Pause");
+                paintThread.reanueThread();
+            }else {
+                btn_PlayPause.setText("Play");
+                paintThread.pauseThread();
+            }
+        });
+        
+        btn_Step.setOnMouseClicked((e)->{
+            llaveStep = false;
+            btn_PlayPause.setDisable(true);
+            if (!primeraVez) {
+                th.start();
+                primeraVez = false;
+            }else if (PaintThread.suspend){
+                paintThread = new PaintThread(matrix, vB_coordsQueue, pincel,tiempo);
+                new Thread(paintThread).start();
+            }
         });
         
         velocidad.setOnMouseReleased((ev)->{
             tiempo = (int) (velocidad.getValue()*1000);
-            //paintThread.set
+            PaintThread.setMilis(tiempo);
         });
     }
     

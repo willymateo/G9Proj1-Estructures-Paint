@@ -35,7 +35,6 @@ public class Matrix {
         this.matrixNum = matrixNum;
         setRowColumns();
         matrixBin = new int[rows][columns];
-        clusters = new PriorityQueue<>(new ClusterComparator());
         createClustersQueue();
         resetMatrixBin();
     }
@@ -58,6 +57,14 @@ public class Matrix {
     
     public void resetMatrixBin(){
         matrixBin = new int[rows][columns];
+    }
+    
+    public void originColor(){
+        for (Cluster cluster : clusters) {
+            for (Coordenada coordenada : cluster.getPixelesMap().keySet()) {
+                cluster.getPixelesMap().get(coordenada).setFill(cluster.getColor());
+            }
+        }
     }
     
     public boolean leftIsEqual(Coordenada coord){
@@ -110,6 +117,7 @@ public class Matrix {
     }   
     
     private void createClustersQueue(){
+        clusters = new PriorityQueue<>(new ClusterComparator());
         for (int row = 0; row < rows; row++) {
             for (int column = 0; column < columns; column++) {
                 if (matrixBin[row][column] == 0) {

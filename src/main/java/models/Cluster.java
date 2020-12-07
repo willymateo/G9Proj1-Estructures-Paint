@@ -39,6 +39,10 @@ public class Cluster{
         return pixelesMap.get(coordenada);
     }
 
+    public Color getColor() {
+        return color;
+    }
+
     public int getSize() {
         return size;
     }
