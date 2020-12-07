@@ -21,25 +21,18 @@ import views.MainView;
  *
  * @author Willy Mateo
  */
-public class PaintThread implements Runnable{
+public class StepPaintThread implements Runnable{
     private final Matrix matrix;
-    private static int milis;
     private final Color pincel;
     private final VBox vB_coordsQueue;
     public static boolean suspend;
     private Button btn_des;
     
-    public PaintThread(Matrix matrix, VBox vB_coordsQueue, Color pincel) {
+    public StepPaintThread(Matrix matrix, VBox vB_coordsQueue, Color pincel) {
         this.matrix = matrix;
         this.pincel = pincel;
         this.vB_coordsQueue = vB_coordsQueue;
         suspend = false;
-        milis = 1000;
-    }
-    
-    public PaintThread(Matrix matrix, VBox vB_coordsQueue, Color pincel, int milis) {
-        this(matrix, vB_coordsQueue, pincel);
-        this.milis = milis;
     }
 
     public VBox getvB_coordsQueue() {
@@ -66,9 +59,6 @@ public class PaintThread implements Runnable{
         boolean continuar = true;
         while(!suspend && continuar){
             try {
-                while (isPaused()) {                    
-                    Thread.sleep(1000);
-                }
                 if(matrix.isEmpty(coord)){
                     cluster.getPixel(coord).setFill(pincel);
                     pilaCoords.push(coord);
@@ -80,7 +70,6 @@ public class PaintThread implements Runnable{
                         vB_coordsQueue.getChildren().add(0,new Label(coordenada.toString()));
                     });
                     matrix.getMatrixBin()[coord.getY()][coord.getX()] = 1;
-                    Thread.sleep(milis);
                 }
                 if(matrix.rightIsEmpty(coord) && matrix.rightIsEqual(coord)){
                     coord = new Coordenada(coord.getX()+1, coord.getY());
@@ -96,13 +85,17 @@ public class PaintThread implements Runnable{
                         Platform.runLater(()->{
                             vB_coordsQueue.getChildren().remove(0);
                         });
-                        Thread.sleep(milis);
                     }else{continuar = false;}
                 }
                 
                 if (suspend) {
                     break;
                 }
+                
+                while (MainView.llaveStep) {                        
+                    Thread.sleep(1000);
+                }
+                MainView.llaveStep = true;
             } catch (InterruptedException iE) {
                 System.out.print("Se finalizó el hilo de pintar por un error inesperado.");
                 suspend = true;
@@ -113,22 +106,6 @@ public class PaintThread implements Runnable{
     public static void killThread(){
         suspend = true;
         MainView.llavePause = false;
+        MainView.llaveStep = false;
     }
-    
-    public void pauseThread(){
-        MainView.llavePause = true;
-    }
-    
-    public synchronized void reanueThread(){
-        MainView.llavePause = false;
-    }
-    
-    public boolean isPaused(){
-        return MainView.llavePause;
-    }
-
-    public static void setMilis(int milis) {
-        PaintThread.milis = milis;
-    }
-    
 }

@@ -7,6 +7,7 @@ package views;
 
 import data.PaintThread;
 import data.ReadMatrix;
+import data.StepPaintThread;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -31,6 +32,7 @@ public class MainView {
     private final Color pincel;
     private VBox vB_coordsQueue;
     private PaintThread paintThread;
+    private StepPaintThread stepPaintThread;
     private Slider velocidad;
     private boolean primeraVez;
     public static boolean llavePause;
@@ -70,7 +72,9 @@ public class MainView {
     
     private void createBottom() {
         paintThread = new PaintThread(matrix, vB_coordsQueue, pincel, tiempo);
-        Thread th = new Thread(paintThread);
+        Thread thPlay = new Thread(paintThread);
+        stepPaintThread = new StepPaintThread(matrix, vB_coordsQueue, pincel);
+        Thread thStep = new Thread(stepPaintThread);
         
         velocidad = new Slider(1, 5, 1);
         velocidad.setShowTickLabels(true);
@@ -93,8 +97,9 @@ public class MainView {
         btn_PlayPause.setOnMouseClicked((e)->{
             btn_Step.setDisable(true);
             if (primeraVez) {
-                th.start();
+                thPlay.start();
                 primeraVez = false;
+                btn_PlayPause.setText("Pause");
             }else if (PaintThread.suspend){
                 paintThread = new PaintThread(matrix, vB_coordsQueue, pincel, tiempo);
                 new Thread(paintThread).start();
@@ -113,11 +118,11 @@ public class MainView {
             llaveStep = false;
             btn_PlayPause.setDisable(true);
             if (!primeraVez) {
-                th.start();
+                thStep.start();
                 primeraVez = false;
-            }else if (PaintThread.suspend){
-                paintThread = new PaintThread(matrix, vB_coordsQueue, pincel,tiempo);
-                new Thread(paintThread).start();
+            }else if (stepPaintThread.suspend){
+                stepPaintThread = new StepPaintThread(matrix, vB_coordsQueue, pincel); 
+                new Thread(stepPaintThread).start();
             }
         });
         
