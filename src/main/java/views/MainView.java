@@ -11,6 +11,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -26,13 +27,17 @@ import models.Matrix;
 public class MainView {
     private final BorderPane root;
     private Matrix matrix;
-    private long tiempo;
+    private int tiempo;
     private final Color pincel;
+    private VBox vB_coordsQueue;
+    private Thread paintThread;
+    private Slider velocidad;
 
     public MainView() {
         root = new BorderPane();
+        vB_coordsQueue = new VBox();
         tiempo = 1000;
-        pincel = Color.LIGHTCORAL;
+        pincel = Color.ORANGE;
         loadFiles();
         createTop();
         createCenter();
@@ -52,13 +57,15 @@ public class MainView {
     }
     
     private void createCenter(){
-        VBox vb_Pila = new VBox();
-        HBox hb_Center = new HBox(matrix.getGridP_Contenedor(), vb_Pila);
-        hb_Center.setAlignment(Pos.CENTER);
+        HBox hb_Center = new HBox(matrix.getGridP_Contenedor(), vB_coordsQueue);
+        hb_Center.setAlignment(Pos.BOTTOM_CENTER);
         root.setCenter(hb_Center);
     }
     
     private void createBottom() {
+        velocidad = new Slider(1, 5, 1);
+        velocidad.setShowTickLabels(true);
+        velocidad.setShowTickMarks(true);
         Button btn_PlayPause = new Button("Play");
         Button btn_Step = new Button("Step");
         btn_PlayPause.setGraphicTextGap(3);
@@ -69,17 +76,28 @@ public class MainView {
         } catch (IllegalArgumentException iaE) {
             System.out.println("No se pudieron cargar las imagenes");
         }
-        
-        HBox hB_Bottom = new HBox(btn_PlayPause, btn_Step);
-        hB_Bottom.setPadding(new Insets(10));
+        HBox hB_Bottom = new HBox(velocidad,btn_PlayPause, btn_Step);
+        hB_Bottom.setPadding(new Insets(20));
         hB_Bottom.setAlignment(Pos.CENTER);
         root.setBottom(hB_Bottom);
         
         btn_PlayPause.setOnMouseClicked((e)->{
-            System.out.println("Clic play");
             btn_Step.setDisable(true);
-            Thread paintThread = new Thread(new PaintThread(matrix, pincel, tiempo));
+            if (btn_PlayPause.getText().equals("Play")) {
+                btn_PlayPause.setText("Pause");
+            }else {
+                btn_PlayPause.setText("Play");
+            }
+            
+            PaintThread pt = new PaintThread(matrix, vB_coordsQueue, pincel, tiempo);
+            paintThread = new Thread(pt);
+            vB_coordsQueue = pt.getvB_coordsQueue();
             paintThread.start();
+        });
+        
+        velocidad.setOnMouseReleased((ev)->{
+            tiempo = (int) (velocidad.getValue()*1000);
+            //paintThread.set
         });
     }
     

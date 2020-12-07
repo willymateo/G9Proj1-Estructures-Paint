@@ -36,7 +36,7 @@ public class Matrix {
         setRowColumns();
         matrixBin = new int[rows][columns];
         clusters = new PriorityQueue<>(new ClusterComparator());
-        getClustersQueue();
+        createClustersQueue();
         resetMatrixBin();
     }
     
@@ -109,17 +109,17 @@ public class Matrix {
         columns = matrixNum[0].length;
     }   
     
-    private void getClustersQueue(){
+    private void createClustersQueue(){
         for (int row = 0; row < rows; row++) {
             for (int column = 0; column < columns; column++) {
                 if (matrixBin[row][column] == 0) {
-                    clusters.offer(getCluster(new Coordenada(column, row)));
+                    clusters.offer(createCluster(new Coordenada(column, row)));
                 }
             }
         }
     }
     
-    private Cluster getCluster(Coordenada coord){
+    private Cluster createCluster(Coordenada coord){
         ArrayDeque<Coordenada> pila = new ArrayDeque<>();
         Color color = ManejadorColor.buscarColor(matrixNum[coord.getY()][coord.getX()]);
         Coordenada pixelLeft = new Coordenada(columns-1,0);
